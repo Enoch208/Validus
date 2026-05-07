@@ -23,6 +23,7 @@ import {
   fetchBountyAmount,
   parsePrUrl,
 } from "./github.js";
+import { DEFAULT_MODEL_TIERS } from "@blockrun/franklin/plugin-sdk";
 
 const VERDICT_APPROVED = "approved";
 const VERDICT_REJECTED = "rejected";
@@ -42,6 +43,14 @@ function extractKeyword(text, keywords) {
   const sorted = [...keywords].sort((a, b) => b.length - a.length);
   for (const k of sorted) if (lower.includes(k)) return k;
   return null;
+}
+
+/**
+ * Tier resolver — applies the freeOnly downshift if config requests it.
+ * Use this everywhere instead of passing the literal tier to ctx.callModel.
+ */
+function pickTier(ctx, requested) {
+  return ctx.config.freeOnly ? "free" : requested;
 }
 
 /**
@@ -74,12 +83,17 @@ export function createReviewPRWorkflow() {
     defaultConfig() {
       return {
         name: "review-pr",
-        models: { free: "auto", cheap: "auto", premium: "auto" },
+        // Use Franklin's defaults — `nvidia/qwen3-coder-480b` for free/cheap,
+        // `anthropic/claude-sonnet-4.6` for premium. Override per workflow if needed.
+        models: { ...DEFAULT_MODEL_TIERS },
         payoutMode: process.env.PAYOUT_MODE ?? "dry-run",
         perPayoutCapUsd: 5,
         // PR target — set per-run via env or override. Workflow's beforeRun
         // hook fetches the live PR data from GitHub before steps execute.
         prUrl: process.env.VALIDUS_PR_URL,
+        // Force every step to the free tier — useful for first-run validation
+        // before funding the Franklin wallet for x402 cheap/premium calls.
+        freeOnly: process.env.VALIDUS_FREE_ONLY === "1",
       };
     },
 
@@ -180,7 +194,7 @@ export function createReviewPRWorkflow() {
           ctx.log("Checking scope match against the linked issue");
 
           const out = await ctx.callModel(
-            "cheap",
+            pickTier(ctx, "cheap"),
             `Does this PR address the linked issue and stay within scope? Reply YES or NO with a one-sentence reason.\n\nIssue: ${pr.issue ?? "(none)"}\nPR title: ${pr.title}`
           );
           const passed = /^\s*yes/i.test(out.trim());
@@ -246,7 +260,7 @@ export function createReviewPRWorkflow() {
           ctx.log("Running code quality + security review");
 
           const out = await ctx.callModel(
-            "cheap",
+            pickTier(ctx, "cheap"),
             `Review this diff for code quality and security issues. Return one of:\n  CLEAN — approve as-is\n  AMBIGUOUS — needs deeper look\n  REJECT — clear issues\nFollow with one sentence reason.\n\nDiff summary: ${pr.diffStats?.summary ?? "(diff omitted)"}`
           );
           const verdict = extractKeyword(out, ["clean", "ambiguous", "reject"]);
@@ -290,7 +304,7 @@ export function createReviewPRWorkflow() {
           ctx.log("Escalating to premium tier");
 
           const out = await ctx.callModel(
-            "premium",
+            pickTier(ctx, "premium"),
             `A previous reviewer flagged this PR as ambiguous. Make a final call: APPROVE or NEEDS-HUMAN, plus a one-sentence reason.\n\n${pr.diffStats?.summary ?? "(diff omitted)"}`
           );
           const verdict = extractKeyword(out, ["approve", "needs-human"]);

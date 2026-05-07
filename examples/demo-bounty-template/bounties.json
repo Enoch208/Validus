@@ -1,0 +1,16 @@
+[
+  {
+    "issue": 1,
+    "amount": 5,
+    "token": "USDC",
+    "chain": "base",
+    "description": "Add CSV export endpoint to /reports API"
+  },
+  {
+    "issue": 2,
+    "amount": 3,
+    "token": "USDC",
+    "chain": "base",
+    "description": "Fix race condition in user-session middleware"
+  }
+]

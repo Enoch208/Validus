@@ -245,7 +245,51 @@ try {
   ok(`totalCost = $${receipt.totalCost.toFixed(4)} (includes premium)`);
 } catch (e) { fail("escalation scenario", e); }
 
-// -------- Test 6: GitHub fetcher (parser + fetcher with mock fetch) ----
+// -------- Test 6: freeOnly mode downshifts cheap/premium → free --------
+
+console.log("\nfreeOnly mode (no x402 spend)");
+try {
+  const wf = plugin.workflows["review-pr"]();
+  const tiersCalled = [];
+  const config = {
+    ...wf.defaultConfig(),
+    freeOnly: true,
+    pr: {
+      repo: "validus-test/repo",
+      number: 7,
+      url: "https://github.com/validus-test/repo/pull/7",
+      title: "Add CSV export",
+      bountyUsd: 5,
+    },
+    contributor: { address: "0x9E2bA3f0c8dEf7b34E0Fa19c6B3cA01dD5a401f" },
+  };
+  const ctx = {
+    data: { startedAt: new Date().toISOString() },
+    config,
+    dryRun: true,
+    callModel: async (tier, prompt) => {
+      tiersCalled.push(tier);
+      // Same fixture for every tier — only "free" should be requested in freeOnly mode
+      if (prompt.includes("Classify")) return "bounty-claim";
+      if (prompt.includes("scope")) return "YES — clean diff";
+      return "CLEAN — no security concerns";
+    },
+    search: async () => [],
+    log: () => {},
+    track: async () => {},
+    isDuplicate: async () => false,
+  };
+  await drive(wf, ctx);
+  assert.ok(
+    tiersCalled.every((t) => t === "free"),
+    `expected all 'free' tier calls, got: ${tiersCalled.join(", ")}`
+  );
+  ok(`every callModel used 'free' tier (${tiersCalled.length} calls)`);
+  assert.equal(ctx.data.verdict, "approved");
+  ok("freeOnly approval still produces an approved verdict");
+} catch (e) { fail("freeOnly mode", e); }
+
+// -------- Test 7: GitHub fetcher (parser + fetcher with mock fetch) ----
 
 console.log("\nGitHub fetcher");
 try {

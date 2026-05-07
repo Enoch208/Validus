@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "test": "node test/run-workflow.test.mjs",
-    "install:local": "node test/install-local.mjs"
+    "review": "node bin/review.mjs",
+    "server": "node server/index.mjs"
   },
   "dependencies": {
     "viem": "^2.21.0"

@@ -1,0 +1,50 @@
+# systemd unit for the Validus HTTP server.
+# Install:
+#   sudo cp validus.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now validus
+#   sudo systemctl status validus
+#
+# Logs:
+#   journalctl -u validus -f
+
+[Unit]
+Description=Validus Franklin plugin server
+After=network.target
+
+[Service]
+Type=simple
+User=validus
+Group=validus
+WorkingDirectory=/home/validus/Validus/plugin
+
+# Make sure Node and franklin are on PATH for systemd's restricted env.
+# Adjust path if you installed Node via fnm/nvm.
+Environment=PATH=/home/validus/.nvm/versions/node/v20.18.0/bin:/usr/local/bin:/usr/bin
+
+# Server config — set these per environment
+Environment=PORT=4000
+Environment=ALLOWED_ORIGIN=https://your-dashboard.vercel.app
+# Generate with: openssl rand -hex 32
+Environment=VALIDUS_AUTH_TOKEN=CHANGE_ME
+
+# Optional but recommended for higher GitHub rate limits
+# Environment=GITHUB_TOKEN=ghp_xxx
+
+# Required only for mode=testnet|mainnet payouts
+# Environment=PAYOUT_PRIVATE_KEY=0xabc...
+
+ExecStart=/usr/bin/node /home/validus/Validus/plugin/server/index.mjs
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/home/validus/.blockrun
+
+[Install]
+WantedBy=multi-user.target

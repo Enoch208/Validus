@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { ConnectButton } from "@/components/wallet/ConnectButton";
 import { FadeIn } from "@/components/ui/FadeIn";
 import { ReceiptsList } from "@/components/dashboard/ReceiptsList";
+import { ReviewForm } from "@/components/dashboard/ReviewForm";
 
 function truncate(addr: string) {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
@@ -106,7 +107,11 @@ function ConnectedDashboard({ address }: { address: string }) {
           </p>
         </FadeIn>
 
-        <FadeIn delay={0.3}>
+        <FadeIn delay={0.25}>
+          <ReviewForm />
+        </FadeIn>
+
+        <FadeIn delay={0.4}>
           <ReceiptsList />
         </FadeIn>
       </div>
