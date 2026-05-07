@@ -28,9 +28,9 @@ export function FeaturesSection() {
           </p>
         </FadeIn>
 
-        <FadeIn delay={0.35}>
-          {/* Asymmetric 60/40 grid that flips between rows: 7/5, 5/7 */}
-          <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-12">
+        {/* Asymmetric 60/40 grid that flips between rows: 7/5, 5/7 */}
+        <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-12">
+          <FadeIn delay={0.04} y={28} scale={0.985} className="md:col-span-7">
             <FeatureCard
               title="Smart Routing Pipeline"
               description="Free classifies the PR. Eco checks scope. Auto reviews code. Premium escalates only when the others can't decide. Average review: $0.019."
@@ -38,8 +38,9 @@ export function FeaturesSection() {
               imageAlt="Four routing tier nodes connected by glowing indigo flow lines"
               fallbackIcon={<CpuIcon size={64} strokeWidth={1.5} />}
               layout="text-top"
-              className="md:col-span-7"
             />
+          </FadeIn>
+          <FadeIn delay={0.12} y={28} scale={0.985} className="md:col-span-5">
             <FeatureCard
               title="Sandboxed Test Runs"
               description="Tests run in BlockRun's isolated sandbox. Never your machine. Never your CI minutes. Approve only what passes."
@@ -47,8 +48,9 @@ export function FeaturesSection() {
               imageAlt="Translucent glass cube containing emerald checkmarks for passing tests"
               fallbackIcon={<TestTubeIcon size={64} strokeWidth={1.5} />}
               layout="image-top"
-              className="md:col-span-5"
             />
+          </FadeIn>
+          <FadeIn delay={0.04} y={28} scale={0.985} className="md:col-span-5">
             <FeatureCard
               title="Autonomous USDC Payouts"
               description="On approval, your Franklin wallet signs the USDC transfer. Settled on Base in 2.1 seconds. Hard-capped at $5 per payout on mainnet."
@@ -56,8 +58,9 @@ export function FeaturesSection() {
               imageAlt="USDC coin transferring between two glass wallets with an emerald checkmark"
               fallbackIcon={<WalletAdd01Icon size={64} strokeWidth={1.5} />}
               layout="image-top"
-              className="md:col-span-5"
             />
+          </FadeIn>
+          <FadeIn delay={0.12} y={28} scale={0.985} className="md:col-span-7">
             <FeatureCard
               title="A Receipt for Every Review"
               description="Per-stage cost, total spent, savings vs always-Opus, and the on-chain tx hash — every review ships with a receipt. Account for every cent and every claim."
@@ -65,10 +68,9 @@ export function FeaturesSection() {
               imageAlt="Glass receipt card showing $0.019 cost, mini bar chart, and abbreviated tx hash"
               fallbackIcon={<AnalyticsUpIcon size={64} strokeWidth={1.5} />}
               layout="text-top"
-              className="md:col-span-7"
             />
-          </div>
-        </FadeIn>
+          </FadeIn>
+        </div>
       </div>
     </section>
   );

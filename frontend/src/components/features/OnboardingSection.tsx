@@ -27,27 +27,30 @@ export function OnboardingSection() {
           </p>
         </FadeIn>
 
-        <FadeIn delay={0.35}>
-          {/* 1 big left + 2 stacked right */}
-          <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2 md:grid-rows-2">
+        {/* 1 big left + 2 stacked right */}
+        <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2 md:grid-rows-2">
+          <FadeIn delay={0.04} y={28} scale={0.985} className="md:row-span-2">
             <OnboardingCard
               icon={<CodeSquareIcon size={20} strokeWidth={1.5} />}
               title="Install in one command"
               description="franklin plugin add validus. That's it — the plugin self-registers as a webhook in your Franklin runtime, watches your repo for bounty PRs, and reads bounty amounts from a single bounties.json. No CI changes. No hosted dashboard. No new account."
-              className="md:row-span-2"
             />
+          </FadeIn>
+          <FadeIn delay={0.12} y={28} scale={0.985}>
             <OnboardingCard
               icon={<Wallet02Icon size={20} strokeWidth={1.5} />}
               title="Set your spending caps"
               description="Point Validus at your Franklin wallet. Choose per-payout cap, daily ceiling, and the tier you'll allow review to escalate to. Mainnet payouts are hard-capped at $5."
             />
+          </FadeIn>
+          <FadeIn delay={0.18} y={28} scale={0.985}>
             <OnboardingCard
               icon={<Coffee02Icon size={20} strokeWidth={1.5} />}
               title="Wake up to merged PRs"
               description="Validus runs the review pipeline 24/7. You wake up to merged PRs, signed payout receipts, and contributors who got paid while you slept. Ambiguous reviews ping you on Slack — that's the only interruption."
             />
-          </div>
-        </FadeIn>
+          </FadeIn>
+        </div>
       </div>
     </section>
   );

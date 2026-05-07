@@ -53,13 +53,12 @@ export function FAQSection() {
           </p>
         </FadeIn>
 
-        <FadeIn delay={0.35}>
-          <div className="mt-12 space-y-3">
+        <div className="mt-12 space-y-3">
             {FAQS.map((item, i) => {
               const isOpen = openIdx === i;
               return (
+                <FadeIn key={item.q} delay={Math.min(i * 0.05, 0.2)} y={20}>
                 <div
-                  key={item.q}
                   className={cn(
                     "relative overflow-hidden rounded-xl border bg-zinc-950/60 backdrop-blur-xl",
                     "transition-colors duration-200",
@@ -143,10 +142,10 @@ export function FAQSection() {
                     )}
                   </AnimatePresence>
                 </div>
+                </FadeIn>
               );
             })}
           </div>
-        </FadeIn>
       </div>
     </section>
   );

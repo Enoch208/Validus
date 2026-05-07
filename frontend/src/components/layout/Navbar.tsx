@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
+import { ConnectButton } from "@/components/wallet/ConnectButton";
 
 const NAV_LINKS = [
   { href: "#features", label: "Features" },
@@ -41,8 +42,10 @@ export function Navbar() {
       </ul>
 
       <div className="flex items-center gap-3">
-        <Button variant="ghost">View Demo</Button>
-        <Button variant="primary">Connect Wallet</Button>
+        <Link href="/dashboard">
+          <Button variant="ghost">Launch App</Button>
+        </Link>
+        <ConnectButton />
       </div>
     </nav>
   );
