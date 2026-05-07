@@ -245,7 +245,85 @@ try {
   ok(`totalCost = $${receipt.totalCost.toFixed(4)} (includes premium)`);
 } catch (e) { fail("escalation scenario", e); }
 
-// -------- Test 6: payout layer — dry-run shape ------------------
+// -------- Test 6: GitHub fetcher (parser + fetcher with mock fetch) ----
+
+console.log("\nGitHub fetcher");
+try {
+  const { parsePrUrl, fetchPullRequest, fetchCheckStatus } = await import(
+    "../src/github.js"
+  );
+
+  // parsePrUrl
+  const a = parsePrUrl("https://github.com/owner/repo/pull/142");
+  assert.deepEqual(a, { owner: "owner", repo: "repo", number: 142 });
+  ok("parsePrUrl handles full GitHub URLs");
+
+  const b = parsePrUrl("owner/repo#142");
+  assert.deepEqual(b, { owner: "owner", repo: "repo", number: 142 });
+  ok("parsePrUrl handles owner/repo#N shorthand");
+
+  assert.throws(() => parsePrUrl("not-a-url"), /Not a GitHub PR URL/);
+  ok("parsePrUrl throws on bad input");
+
+  // fetchPullRequest with mock fetcher
+  const mockFetch = async (path) => {
+    if (path.endsWith("/pulls/142")) {
+      return {
+        title: "Add CSV export",
+        body: "fixes #99",
+        html_url: "https://github.com/o/r/pull/142",
+        head: { sha: "deadbeef" },
+        additions: 87,
+        deletions: 3,
+        changed_files: 4,
+        user: { login: "alice-dev" },
+        state: "open",
+        merged: false,
+      };
+    }
+    if (path.endsWith("/issues/99")) {
+      return { title: "feat: CSV export", number: 99 };
+    }
+    throw new Error("unexpected path: " + path);
+  };
+  const pr = await fetchPullRequest(
+    "https://github.com/o/r/pull/142",
+    { fetchImpl: mockFetch }
+  );
+  assert.equal(pr.repo, "o/r");
+  assert.equal(pr.number, 142);
+  assert.equal(pr.diffStats.changes, 90);
+  assert.equal(pr.headSha, "deadbeef");
+  assert.ok(pr.issue?.includes("feat: CSV export"));
+  ok("fetchPullRequest returns the workflow's expected pr shape");
+
+  // fetchCheckStatus with mock
+  const mockChecks = async () => ({
+    check_runs: [
+      { status: "completed", conclusion: "success" },
+      { status: "completed", conclusion: "success" },
+      { status: "completed", conclusion: "success" },
+    ],
+  });
+  const status = await fetchCheckStatus("o/r", "deadbeef", { fetchImpl: mockChecks });
+  assert.equal(status.passed, true);
+  assert.equal(status.succeeded, 3);
+  assert.equal(status.failed, 0);
+  ok("fetchCheckStatus reports passed when all check-runs succeed");
+
+  const mockFailed = async () => ({
+    check_runs: [
+      { status: "completed", conclusion: "success" },
+      { status: "completed", conclusion: "failure" },
+    ],
+  });
+  const failed = await fetchCheckStatus("o/r", "x", { fetchImpl: mockFailed });
+  assert.equal(failed.passed, false);
+  assert.equal(failed.failed, 1);
+  ok("fetchCheckStatus reports passed=false on any failure");
+} catch (e) { fail("github fetcher", e); }
+
+// -------- Test 7: payout layer — dry-run shape ------------------
 
 console.log("\nPayout layer (dry-run only — no chain interaction)");
 try {

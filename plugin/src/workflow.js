@@ -16,6 +16,13 @@
 
 import { writeReceipt } from "./receipt.js";
 import { signPayout } from "./payout.js";
+import {
+  fetchPullRequest,
+  fetchCheckStatus,
+  fetchContributorAddress,
+  fetchBountyAmount,
+  parsePrUrl,
+} from "./github.js";
 
 const VERDICT_APPROVED = "approved";
 const VERDICT_REJECTED = "rejected";
@@ -70,6 +77,9 @@ export function createReviewPRWorkflow() {
         models: { free: "auto", cheap: "auto", premium: "auto" },
         payoutMode: process.env.PAYOUT_MODE ?? "dry-run",
         perPayoutCapUsd: 5,
+        // PR target — set per-run via env or override. Workflow's beforeRun
+        // hook fetches the live PR data from GitHub before steps execute.
+        prUrl: process.env.VALIDUS_PR_URL,
       };
     },
 
@@ -78,6 +88,43 @@ export function createReviewPRWorkflow() {
         ...this.defaultConfig(),
         payoutMode: answers.payoutMode ?? "dry-run",
         perPayoutCapUsd: Number(answers.perPayoutCapUsd ?? 5),
+      };
+    },
+
+    /**
+     * Hydrate config.pr + config.contributor from the GitHub API before steps run.
+     * Skipped if config.pr is already populated (e.g. by tests).
+     */
+    async beforeRun(config) {
+      if (config.pr && config.contributor) return; // already hydrated
+      if (!config.prUrl) {
+        throw new Error(
+          "Validus needs a PR to review — set $VALIDUS_PR_URL or pass prUrl in config."
+        );
+      }
+
+      const pr = await fetchPullRequest(config.prUrl);
+      const { owner, repo, number } = parsePrUrl(config.prUrl);
+      const repoFull = `${owner}/${repo}`;
+
+      const [contributor, bounty] = await Promise.all([
+        fetchContributorAddress(repoFull, number),
+        fetchBountyAmount(repoFull, pr.title, pr.body),
+      ]);
+
+      config.pr = { ...pr, bountyUsd: bounty?.amount ?? 0 };
+      config.contributor = contributor ?? {
+        address: "0x0000000000000000000000000000000000000000",
+      };
+
+      // tests step uses GitHub Actions check status — wire it via testRunner option
+      config.testRunner = async () => {
+        const status = await fetchCheckStatus(repoFull, pr.headSha);
+        return {
+          passed: status.passed,
+          duration: 0, // GitHub doesn't expose per-run total in this endpoint
+          summary: status.summary,
+        };
       };
     },
 
