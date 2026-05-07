@@ -1,0 +1,15 @@
+{
+  "id": "validus",
+  "name": "Validus",
+  "description": "Reviews open-source bounty PRs across smart-routing tiers and signs USDC payouts on Base",
+  "version": "0.1.0",
+  "provides": {
+    "workflows": ["review-pr"],
+    "commands": ["validus"]
+  },
+  "entry": "index.js",
+  "author": "BlockRunAI Hackathon — May 2026",
+  "homepage": "https://github.com/your-org/validus",
+  "license": "Apache-2.0",
+  "franklinVersion": ">=3.0.0"
+}
