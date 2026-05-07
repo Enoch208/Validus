@@ -8,6 +8,7 @@ import { Wallet02Icon, ArrowLeft02Icon, LogoutSquare01Icon } from "hugeicons-rea
 import { Button } from "@/components/ui/Button";
 import { ConnectButton } from "@/components/wallet/ConnectButton";
 import { FadeIn } from "@/components/ui/FadeIn";
+import { ReceiptsList } from "@/components/dashboard/ReceiptsList";
 
 function truncate(addr: string) {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
@@ -99,45 +100,14 @@ function ConnectedDashboard({ address }: { address: string }) {
         </FadeIn>
         <FadeIn delay={0.15}>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-zinc-400">
-            Live data goes here once the Franklin plugin is shipping receipts.
-            For now: this is the connected-wallet skeleton — wallet:{" "}
-            <span className="font-mono text-zinc-200">{truncate(address)}</span>
-            .
+            Connected as{" "}
+            <span className="font-mono text-zinc-200">{truncate(address)}</span>.
+            Receipts stream in below as the Validus plugin processes PRs.
           </p>
         </FadeIn>
 
         <FadeIn delay={0.3}>
-          <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
-            {[
-              { label: "Bounties this month", value: "0" },
-              { label: "Total reviewed cost", value: "$0.000" },
-              { label: "Total paid out", value: "$0.00 USDC" },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="relative overflow-hidden rounded-xl border border-white/[0.06] bg-zinc-950/60 p-6 backdrop-blur-xl"
-              >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_55%_50%_at_0%_0%,rgba(99,102,241,0.10),transparent_60%)]" />
-                <div className="relative">
-                  <div className="text-[11px] uppercase tracking-wider text-zinc-500">
-                    {stat.label}
-                  </div>
-                  <div className="mt-2 font-[family-name:var(--font-fraunces)] text-3xl font-medium text-white">
-                    {stat.value}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </FadeIn>
-
-        <FadeIn delay={0.45}>
-          <div className="mt-8 rounded-xl border border-dashed border-white/10 bg-zinc-950/40 p-12 text-center">
-            <p className="text-sm text-zinc-500">
-              Routing receipts and payout history will stream in here once the
-              Franklin plugin is wired up.
-            </p>
-          </div>
+          <ReceiptsList />
         </FadeIn>
       </div>
     </div>
