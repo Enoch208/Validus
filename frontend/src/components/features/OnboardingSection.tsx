@@ -12,17 +12,18 @@ export function OnboardingSection() {
       <div className="mx-auto max-w-6xl px-6">
         <FadeIn>
           <h2 className="font-[family-name:var(--font-fraunces)] mx-auto max-w-3xl text-center text-4xl font-medium leading-[1.1] tracking-tight text-white sm:text-5xl">
-            Run Your Bounty Board With{" "}
+            Three steps. Then{" "}
             <span className="bg-gradient-to-br from-blue-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent italic">
-              Zero Overhead.
+              walk away.
             </span>
           </h2>
         </FadeIn>
 
         <FadeIn delay={0.2}>
           <p className="mx-auto mt-6 max-w-xl text-center text-sm leading-relaxed text-zinc-400 sm:text-[15px]">
-            Validus handles the review and payout pipeline so you stay focused
-            on shipping the project — install once, set thresholds, walk away.
+            Install the plugin, point it at your wallet, set your spending caps.
+            Validus runs the rest in the background — you stay focused on
+            shipping the project.
           </p>
         </FadeIn>
 
@@ -31,19 +32,19 @@ export function OnboardingSection() {
           <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-2 md:grid-rows-2">
             <OnboardingCard
               icon={<CodeSquareIcon size={20} strokeWidth={1.5} />}
-              title="Install in One Command"
-              description="Run franklin plugin add validus once. The plugin self-registers as a webhook listener inside your Franklin runtime, picks up bounty references from bounties.json, and stays out of your way."
+              title="Install in one command"
+              description="franklin plugin add validus. That's it — the plugin self-registers as a webhook in your Franklin runtime, watches your repo for bounty PRs, and reads bounty amounts from a single bounties.json. No CI changes. No hosted dashboard. No new account."
               className="md:row-span-2"
             />
             <OnboardingCard
               icon={<Wallet02Icon size={20} strokeWidth={1.5} />}
-              title="Connect Your Wallet"
-              description="Point Validus at your Franklin wallet. Set per-payout caps, escalation thresholds, and the routing tier ceiling. Hard-capped at $5/payout on Base mainnet."
+              title="Set your spending caps"
+              description="Point Validus at your Franklin wallet. Choose per-payout cap, daily ceiling, and the tier you'll allow review to escalate to. Mainnet payouts are hard-capped at $5."
             />
             <OnboardingCard
               icon={<Coffee02Icon size={20} strokeWidth={1.5} />}
-              title="Approve. Pay. Sleep."
-              description="Validus audits PRs across smart-routing tiers, runs your test suite in BlockRun's sandbox, and signs USDC payouts on Base. You wake up to merged PRs and on-chain receipts."
+              title="Wake up to merged PRs"
+              description="Validus runs the review pipeline 24/7. You wake up to merged PRs, signed payout receipts, and contributors who got paid while you slept. Ambiguous reviews ping you on Slack — that's the only interruption."
             />
           </div>
         </FadeIn>

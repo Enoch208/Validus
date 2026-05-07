@@ -13,17 +13,18 @@ export function FeaturesSection() {
       <div className="mx-auto max-w-6xl px-6">
         <FadeIn>
           <h2 className="font-[family-name:var(--font-fraunces)] mx-auto max-w-3xl text-center text-4xl font-medium leading-[1.1] tracking-tight text-white sm:text-5xl">
-            From PR to Payout. Fully{" "}
+            From PR to USDC. Fully{" "}
             <span className="bg-gradient-to-br from-blue-300 via-indigo-300 to-violet-300 bg-clip-text text-transparent italic">
-              Automated.
+              automated.
             </span>
           </h2>
         </FadeIn>
 
         <FadeIn delay={0.2}>
           <p className="mx-auto mt-6 max-w-xl text-center text-sm leading-relaxed text-zinc-400 sm:text-[15px]">
-            Validus closes the loop between bounty submission and on-chain
-            payout — every stage audited, every cost accounted for.
+            Four routing tiers, an isolated test sandbox, and a wallet that
+            signs the payout. Every review costs sub-cent. Every cent is
+            accounted for.
           </p>
         </FadeIn>
 
@@ -32,7 +33,7 @@ export function FeaturesSection() {
           <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-12">
             <FeatureCard
               title="Smart Routing Pipeline"
-              description="Four tiers — free classifies, eco scopes, auto reviews, premium escalates only on ambiguity. Sub-cent reviews end-to-end."
+              description="Free classifies the PR. Eco checks scope. Auto reviews code. Premium escalates only when the others can't decide. Average review: $0.019."
               image="/assets/feature-routing.png"
               imageAlt="Four routing tier nodes connected by glowing indigo flow lines"
               fallbackIcon={<CpuIcon size={64} strokeWidth={1.5} />}
@@ -41,7 +42,7 @@ export function FeaturesSection() {
             />
             <FeatureCard
               title="Sandboxed Test Runs"
-              description="Every PR's test suite runs in BlockRun's isolated compute — never your machine, never your CI budget."
+              description="Tests run in BlockRun's isolated sandbox. Never your machine. Never your CI minutes. Approve only what passes."
               image="/assets/feature-sandbox.png"
               imageAlt="Translucent glass cube containing emerald checkmarks for passing tests"
               fallbackIcon={<TestTubeIcon size={64} strokeWidth={1.5} />}
@@ -50,7 +51,7 @@ export function FeaturesSection() {
             />
             <FeatureCard
               title="Autonomous USDC Payouts"
-              description="On approval, Validus signs a USDC.transfer from your Franklin wallet to the contributor — settled on Base in ~2s."
+              description="On approval, your Franklin wallet signs the USDC transfer. Settled on Base in 2.1 seconds. Hard-capped at $5 per payout on mainnet."
               image="/assets/feature-payout.png"
               imageAlt="USDC coin transferring between two glass wallets with an emerald checkmark"
               fallbackIcon={<WalletAdd01Icon size={64} strokeWidth={1.5} />}
@@ -58,8 +59,8 @@ export function FeaturesSection() {
               className="md:col-span-5"
             />
             <FeatureCard
-              title="Receipt Per Review"
-              description="Per-stage cost, total spent, savings vs always-Opus, and the on-chain tx hash. Every review accounted for."
+              title="A Receipt for Every Review"
+              description="Per-stage cost, total spent, savings vs always-Opus, and the on-chain tx hash — every review ships with a receipt. Account for every cent and every claim."
               image="/assets/feature-receipt.png"
               imageAlt="Glass receipt card showing $0.019 cost, mini bar chart, and abbreviated tx hash"
               fallbackIcon={<AnalyticsUpIcon size={64} strokeWidth={1.5} />}

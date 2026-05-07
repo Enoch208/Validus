@@ -25,15 +25,15 @@ export function CommunityCTA() {
 
             <div className="relative z-10 text-center">
               <h2 className="font-[family-name:var(--font-fraunces)] mx-auto max-w-3xl text-3xl font-medium leading-[1.1] tracking-tight text-white sm:text-5xl">
-                Help Build the Bounty Engine for{" "}
+                Open source. Apache-2.0.{" "}
                 <span className="bg-gradient-to-br from-blue-300 via-indigo-200 to-violet-300 bg-clip-text text-transparent italic">
-                  Open Source.
+                  Reviewed by itself.
                 </span>
               </h2>
               <p className="mx-auto mt-6 max-w-xl text-sm leading-relaxed text-zinc-300/90 sm:text-[15px]">
-                Validus is open source and Apache-2.0 licensed. Star the repo,
-                file an issue, ship a fix — every contribution gets reviewed by
-                the same engine.
+                Star the repo, file an issue, ship a fix — every contribution
+                to Validus gets reviewed by Validus. Same routing tiers. Same
+                receipt. Same payout.
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <Button variant="primary" size="lg">

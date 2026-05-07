@@ -9,23 +9,23 @@ import { cn } from "@/lib/utils";
 const FAQS = [
   {
     q: "What is Validus?",
-    a: "Validus is a Franklin plugin that audits open-source bounty PRs end-to-end — it classifies the PR, checks scope against the issue, runs the test suite in BlockRun's sandbox, reviews code quality and security, and on approval signs a USDC payout from your Franklin wallet. Each stage uses a different routing tier so a clean PR costs sub-cent to review.",
+    a: "A Franklin plugin that reviews open-source bounty PRs and pays the contributor in USDC on Base. It classifies the PR, checks scope, runs your test suite in a sandbox, audits the code, and signs the payout — each stage on a different routing tier, so a clean PR costs about $0.019 end-to-end.",
   },
   {
     q: "Does Validus need write access to my repo?",
-    a: "Read access is enough for review. Write access is only required if you want Validus to merge approved PRs automatically — which is opt-in via a config flag. Payouts happen on-chain regardless of merge, so you can keep the merge step manual if you prefer.",
+    a: "Read access is enough for review. Write access is only needed if you want Validus to merge approved PRs automatically — opt-in via a flag. Payouts happen on-chain regardless of merge, so you can keep merging manual.",
   },
   {
-    q: "What chains does Validus support for payouts?",
-    a: "Base mainnet for production payouts (USDC, hard-capped at $5/payout) and Base Sepolia for testnet. There's also a dry-run mode that logs the transfer payload without broadcasting — useful for debugging your bounties.json before going live.",
+    q: "Which chains and tokens does Validus support?",
+    a: "USDC on Base mainnet (hard-capped at $5 per payout) and Base Sepolia for testnet. There's also a dry-run mode that logs the transfer payload without broadcasting — handy for debugging your bounties.json before going live.",
   },
   {
-    q: "How is the routing cost so low?",
-    a: "Most PRs never hit the premium tier. Validus escalates only when the auto tier flags real ambiguity — scope mismatch, security questions, edge cases the test suite didn't cover. A typical clean fix costs under $0.02 to review end-to-end. The same review on always-Opus would cost 50–80x more.",
+    q: "How is the cost per review so low?",
+    a: "Most PRs never hit the premium tier. Validus only escalates when the auto tier flags real ambiguity — scope mismatch, security questions, edge cases your tests didn't cover. A clean fix costs about $0.019 to review. The same review on always-Opus runs 50–80× higher.",
   },
   {
-    q: "What happens if Validus can't decide?",
-    a: "It returns a needs-human verdict and notifies the maintainer with the routing receipt and the specific stage that flagged ambiguity. No payout is signed until you confirm. You stay in the loop on the hard cases; Validus handles the long tail.",
+    q: "What happens when Validus can't decide?",
+    a: "It returns a needs-human verdict, pings you on Slack, and surfaces the specific stage that flagged ambiguity along with the full routing receipt. No payout signs until you confirm. You stay in the loop for the hard cases — Validus handles the long tail.",
   },
 ];
 
@@ -49,8 +49,7 @@ export function FAQSection() {
 
         <FadeIn delay={0.2}>
           <p className="mx-auto mt-6 max-w-lg text-center text-sm leading-relaxed text-zinc-400 sm:text-[15px]">
-            Everything you need to know about installing, configuring, and
-            shipping Validus into your bounty workflow.
+            The five questions every maintainer asks before installing.
           </p>
         </FadeIn>
 
