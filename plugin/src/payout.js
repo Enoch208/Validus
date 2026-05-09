@@ -12,7 +12,7 @@
  * wallet can be the same OR different — caller's choice.
  */
 
-import { createWalletClient, createPublicClient, http, parseUnits, encodeFunctionData } from "viem";
+import { createWalletClient, createPublicClient, http, fallback, parseUnits, encodeFunctionData } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { base, baseSepolia } from "viem/chains";
 
@@ -24,6 +24,30 @@ const USDC = {
 
 // Hard cap: never sign a mainnet payout above this regardless of bounty config.
 const MAINNET_HARD_CAP_USD = 5;
+
+// Public RPC fallback chains. viem's `fallback` transport tries them in order
+// and skips to the next on failure, so a single endpoint outage doesn't break
+// the payout. Override the primary via env var if you have a paid RPC
+// (Alchemy/QuickNode/Infura) — those are way more reliable than public.
+const TESTNET_RPCS = [
+  process.env.BASE_SEPOLIA_RPC_URL,
+  "https://base-sepolia-rpc.publicnode.com",
+  "https://base-sepolia.drpc.org",
+  "https://sepolia.base.org",
+].filter(Boolean);
+
+const MAINNET_RPCS = [
+  process.env.BASE_RPC_URL,
+  "https://base-rpc.publicnode.com",
+  "https://base.drpc.org",
+  "https://mainnet.base.org",
+].filter(Boolean);
+
+function buildTransport(mode, override) {
+  if (override) return http(override);
+  const urls = mode === "mainnet" ? MAINNET_RPCS : TESTNET_RPCS;
+  return fallback(urls.map((url) => http(url)));
+}
 
 const ERC20_TRANSFER_ABI = [
   {
@@ -79,7 +103,7 @@ export async function signPayout({ mode, to, amountUsd, privateKey, rpcUrl }) {
   const { chain, key: chainKey } = chainFor(mode);
   const account = privateKeyToAccount(pk.startsWith("0x") ? pk : `0x${pk}`);
 
-  const transport = http(rpcUrl); // undefined → use chain's default rpc
+  const transport = buildTransport(mode, rpcUrl);
   const walletClient = createWalletClient({ account, chain, transport });
   const publicClient = createPublicClient({ chain, transport });
 
