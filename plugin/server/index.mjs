@@ -203,25 +203,31 @@ async function handleReview(req, res) {
       log: tailLines(stdout, 30),
     });
   } catch (err) {
+    // Always include the franklin stdout/stderr if we have it — diagnosing
+    // workflow failures without the log is impossible otherwise.
+    const log = err.stdout ? tailLines(err.stdout, 30) : undefined;
     if (err.kind === "plugin_failed") {
       return jsonReply(res, 500, {
         error: "plugin_failed",
         message:
           "The review pipeline errored mid-run. Check the server logs for stderr.",
         detail: err.detail,
+        log,
       });
     }
     if (err.kind === "no_receipt") {
       return jsonReply(res, 500, {
         error: "no_receipt_emitted",
         message:
-          "Pipeline completed but didn't emit a receipt. This usually means the workflow aborted before reaching the payout step.",
+          "Pipeline completed but didn't emit a receipt. This usually means a step (commonly payout) threw before emitReceipt ran.",
+        log,
       });
     }
     return jsonReply(res, 500, {
       error: "internal",
       message: "Unexpected error.",
       detail: err.message,
+      log,
     });
   }
 }

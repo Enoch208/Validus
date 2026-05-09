@@ -389,11 +389,30 @@ export function createReviewPRWorkflow() {
           }
 
           ctx.log(`Signing ${amount} USDC payout in ${payoutMode} mode`);
-          const payout = await signPayout({
-            mode: payoutMode,
-            to: contributor.address,
-            amountUsd: amount.toFixed(2),
-          });
+
+          // Wrap signPayout so that any signing failure (missing key,
+          // gas error, etc.) still emits a receipt with the verdict downgraded
+          // to needs-human + an explanatory note. Without this the workflow
+          // would throw, no receipt would land, and run-plugin would return
+          // no_receipt_emitted with no audit trail of what actually happened.
+          let payout;
+          try {
+            payout = await signPayout({
+              mode: payoutMode,
+              to: contributor.address,
+              amountUsd: amount.toFixed(2),
+            });
+          } catch (err) {
+            ctx.data.verdict = VERDICT_NEEDS_HUMAN;
+            ctx.data.reasoning =
+              `Approved by review pipeline, but payout signing failed: ${err.message}. ` +
+              `Maintainer must complete the transfer manually.`;
+            await emitReceipt(ctx, undefined);
+            return {
+              summary: `Payout signing failed: ${err.message}`,
+              cost: 0,
+            };
+          }
 
           await emitReceipt(ctx, {
             mode: payout.mode,
