@@ -175,6 +175,11 @@ try {
   ok(`totalCost = $${receipt.totalCost.toFixed(4)}`);
   assert.ok(receipt.savingsVsOpus > 0.95, "savingsVsOpus should be > 95% for cheap reviews");
   ok(`savingsVsOpus = ${(receipt.savingsVsOpus * 100).toFixed(1)}%`);
+  // Regression guard: pr.body must NOT be in the receipt — it's only used
+  // internally for the closes/fixes scan. Bloated dependabot release notes
+  // would otherwise add 30+ KB per receipt.
+  assert.equal(receipt.pr.body, undefined, "pr.body should not be in the receipt");
+  ok("pr.body absent from receipt (no bloat)");
 } catch (e) { fail("clean PR scenario", e); }
 
 // -------- Test 4: spam rejection (free tier short-circuits) ----

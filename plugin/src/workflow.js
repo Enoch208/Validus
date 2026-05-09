@@ -123,7 +123,7 @@ export function createReviewPRWorkflow() {
 
       const [contributor, bounty] = await Promise.all([
         fetchContributorAddress(repoFull, number),
-        fetchBountyAmount(repoFull, pr.title, pr.body),
+        fetchBountyAmount(repoFull, pr.issueNumber),
       ]);
 
       config.pr = { ...pr, bountyUsd: bounty?.amount ?? 0 };

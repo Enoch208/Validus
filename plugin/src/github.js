@@ -65,29 +65,33 @@ export async function fetchPullRequest(prUrl, opts = {}) {
   const pr = await fetchImpl(`/repos/${owner}/${repo}/pulls/${number}`);
 
   // Linked issue heuristic: scan body for `closes #N`, `fixes #N`, `resolves #N`
-  // and the PR's title.
+  // and the PR's title. The body is used here ONLY for this scan — it is not
+  // propagated into the return value (see note below the return).
   const bodyAndTitle = `${pr.title ?? ""}\n${pr.body ?? ""}`;
   const issueMatch = bodyAndTitle.match(
     /(?:closes|fixes|resolves)\s+#(\d+)/i
   );
   let issue;
+  let issueNumber;
   if (issueMatch) {
+    issueNumber = Number(issueMatch[1]);
     try {
-      const i = await fetchImpl(
-        `/repos/${owner}/${repo}/issues/${issueMatch[1]}`
-      );
+      const i = await fetchImpl(`/repos/${owner}/${repo}/issues/${issueNumber}`);
       issue = `${i.title} (#${i.number})`;
     } catch {
-      issue = `#${issueMatch[1]} (couldn't fetch)`;
+      issue = `#${issueNumber} (couldn't fetch)`;
     }
   }
 
+  // NOTE: pr.body is intentionally NOT returned. It's used above for the
+  // closes/fixes scan, but we don't propagate it into config.pr / the receipt
+  // — dependabot release notes etc. routinely add 30+ KB of HTML which bloats
+  // every receipt without adding routing-decision value.
   return {
     repo: `${owner}/${repo}`,
     number,
     url: pr.html_url,
     title: pr.title ?? "",
-    body: pr.body ?? "",
     headSha: pr.head?.sha,
     diffStats: {
       changes: (pr.additions ?? 0) + (pr.deletions ?? 0),
@@ -97,6 +101,7 @@ export async function fetchPullRequest(prUrl, opts = {}) {
       summary: `+${pr.additions ?? 0} -${pr.deletions ?? 0}, ${pr.changed_files ?? 0} files`,
     },
     issue,
+    issueNumber,    // exposed so fetchBountyAmount doesn't need to re-scan the body
     author: pr.user?.login,
     state: pr.state, // "open" | "closed"
     merged: !!pr.merged,
@@ -177,8 +182,12 @@ export async function fetchContributorAddress(repo, prNumber, opts = {}) {
 /**
  * Read bountyUsd amount from a `bounties.json` at the repo root on the default branch.
  * Schema: [{ "issue": 142, "amount": 5, "token": "USDC" }, ...]
+ *
+ * The issue number is supplied directly (already parsed by fetchPullRequest) so
+ * we don't need the PR body here.
  */
-export async function fetchBountyAmount(repo, prTitle, prBody, opts = {}) {
+export async function fetchBountyAmount(repo, issueNumber, opts = {}) {
+  if (!issueNumber) return null;
   const fetchImpl = opts.fetchImpl ?? gh;
 
   try {
@@ -187,13 +196,7 @@ export async function fetchBountyAmount(repo, prTitle, prBody, opts = {}) {
     const decoded = Buffer.from(file.content, "base64").toString("utf-8");
     const bounties = JSON.parse(decoded);
 
-    // Match by issue number referenced in PR body/title
-    const m = `${prTitle}\n${prBody}`.match(
-      /(?:closes|fixes|resolves)\s+#(\d+)/i
-    );
-    if (!m) return null;
-    const issueNum = Number(m[1]);
-    const entry = bounties.find((b) => Number(b.issue) === issueNum);
+    const entry = bounties.find((b) => Number(b.issue) === Number(issueNumber));
     return entry ?? null;
   } catch {
     return null;
