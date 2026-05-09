@@ -18,6 +18,7 @@ import { writeReceipt } from "./receipt.js";
 import { signPayout } from "./payout.js";
 import {
   fetchPullRequest,
+  fetchPullRequestDiff,
   fetchCheckStatus,
   fetchContributorAddress,
   fetchBountyAmount,
@@ -121,12 +122,13 @@ export function createReviewPRWorkflow() {
       const { owner, repo, number } = parsePrUrl(config.prUrl);
       const repoFull = `${owner}/${repo}`;
 
-      const [contributor, bounty] = await Promise.all([
+      const [contributor, bounty, diffContent] = await Promise.all([
         fetchContributorAddress(repoFull, number),
         fetchBountyAmount(repoFull, pr.issueNumber),
+        fetchPullRequestDiff(config.prUrl), // null on error — diff is optional
       ]);
 
-      config.pr = { ...pr, bountyUsd: bounty?.amount ?? 0 };
+      config.pr = { ...pr, bountyUsd: bounty?.amount ?? 0, diffContent };
       config.contributor = contributor ?? {
         address: "0x0000000000000000000000000000000000000000",
       };
@@ -261,7 +263,20 @@ export function createReviewPRWorkflow() {
 
           const out = await ctx.callModel(
             pickTier(ctx, "cheap"),
-            `Review this diff for code quality and security issues. Return one of:\n  CLEAN — approve as-is\n  AMBIGUOUS — needs deeper look\n  REJECT — clear issues\nFollow with one sentence reason.\n\nDiff summary: ${pr.diffStats?.summary ?? "(diff omitted)"}`
+            [
+              `Review this PR for code quality and security issues. Return one of:`,
+              `  CLEAN — approve as-is`,
+              `  AMBIGUOUS — needs deeper look`,
+              `  REJECT — clear issues`,
+              `Follow with one sentence reason. Default to CLEAN for trivial docs/config-only changes.`,
+              ``,
+              `Title: ${pr.title}`,
+              `Diff summary: ${pr.diffStats?.summary ?? "(unknown)"}`,
+              `Linked issue: ${pr.issue ?? "(none)"}`,
+              ``,
+              `Diff:`,
+              pr.diffContent ?? "(diff unavailable)",
+            ].join("\n")
           );
           const verdict = extractKeyword(out, ["clean", "ambiguous", "reject"]);
 
@@ -305,7 +320,20 @@ export function createReviewPRWorkflow() {
 
           const out = await ctx.callModel(
             pickTier(ctx, "premium"),
-            `A previous reviewer flagged this PR as ambiguous. Make a final call: APPROVE or NEEDS-HUMAN, plus a one-sentence reason.\n\n${pr.diffStats?.summary ?? "(diff omitted)"}`
+            [
+              `A previous reviewer flagged this PR as ambiguous. Make a final call:`,
+              `  APPROVE — bounty payout safe to sign`,
+              `  NEEDS-HUMAN — escalate to maintainer`,
+              `Follow with one sentence reason. For low-risk diffs (docs, config, trivial CI),`,
+              `default to APPROVE unless something concrete looks off.`,
+              ``,
+              `Title: ${pr.title}`,
+              `Diff summary: ${pr.diffStats?.summary ?? "(unknown)"}`,
+              `Linked issue: ${pr.issue ?? "(none)"}`,
+              ``,
+              `Diff:`,
+              pr.diffContent ?? "(diff unavailable)",
+            ].join("\n")
           );
           const verdict = extractKeyword(out, ["approve", "needs-human"]);
 

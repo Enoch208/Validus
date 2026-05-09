@@ -31,6 +31,35 @@ async function gh(pathname) {
   return res.json();
 }
 
+/** Fetch a unified diff for a PR (text/plain). */
+async function ghDiff(pathname) {
+  const res = await fetch(`${API_BASE}${pathname}`, {
+    headers: { ...authHeaders(), Accept: "application/vnd.github.diff" },
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`GitHub ${pathname}.diff → ${res.status}: ${body.slice(0, 200)}`);
+  }
+  return res.text();
+}
+
+/**
+ * Fetch the unified diff for a PR, truncated to a sane size for LLM context.
+ * Returns null on any error (diff is optional context).
+ */
+export async function fetchPullRequestDiff(prUrl, opts = {}) {
+  const fetchImpl = opts.fetchImpl ?? ghDiff;
+  const maxChars = opts.maxChars ?? 6000;
+  try {
+    const { owner, repo, number } = parsePrUrl(prUrl);
+    const diff = await fetchImpl(`/repos/${owner}/${repo}/pulls/${number}`);
+    if (diff.length <= maxChars) return diff;
+    return diff.slice(0, maxChars) + `\n\n... (truncated, ${diff.length - maxChars} more chars)`;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Parse a GitHub PR URL into { owner, repo, number }.
  * Accepts:
