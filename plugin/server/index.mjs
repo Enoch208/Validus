@@ -5,6 +5,7 @@
  *
  * Routes:
  *   GET  /health    Liveness check
+ *   GET  /receipts  Lists all receipts the plugin has written
  *   POST /review    Run a review for { prUrl, mode?, freeOnly?, perPayoutCapUsd? }
  *
  * Deployment:
@@ -24,7 +25,10 @@
  */
 
 import http from "node:http";
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import { runPlugin } from "./run-plugin.mjs";
+import { getReceiptsDir } from "../src/receipt.js";
 import {
   parsePrUrl,
   fetchPullRequest,
@@ -231,6 +235,41 @@ function tailLines(s, n) {
   return s.split("\n").slice(-n).join("\n");
 }
 
+// ─── /receipts handler ─────────────────────────────────────────────────
+
+async function handleReceipts(req, res) {
+  if (!authOk(req)) return jsonReply(res, 401, { error: "unauthorized" });
+
+  const dir = getReceiptsDir();
+  let entries;
+  try {
+    entries = await fs.readdir(dir);
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      return jsonReply(res, 200, { receipts: [], source: "remote-empty" });
+    }
+    return jsonReply(res, 500, {
+      error: "fs_error",
+      message: "Couldn't read the receipts directory.",
+      detail: err.message,
+    });
+  }
+
+  const jsonFiles = entries.filter((f) => f.endsWith(".json"));
+  const receipts = await Promise.all(
+    jsonFiles.map(async (file) => {
+      const raw = await fs.readFile(path.join(dir, file), "utf-8");
+      return JSON.parse(raw);
+    })
+  );
+  // Newest first
+  receipts.sort((a, b) =>
+    String(b.completedAt).localeCompare(String(a.completedAt))
+  );
+
+  return jsonReply(res, 200, { receipts, source: "remote" });
+}
+
 // ─── Server ─────────────────────────────────────────────────────────────
 
 const server = http.createServer(async (req, res) => {
@@ -244,6 +283,10 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === "GET" && req.url === "/health") {
     return jsonReply(res, 200, { ok: true, version: "0.1.0" });
+  }
+
+  if (req.method === "GET" && req.url === "/receipts") {
+    return handleReceipts(req, res);
   }
 
   if (req.method === "POST" && req.url === "/review") {

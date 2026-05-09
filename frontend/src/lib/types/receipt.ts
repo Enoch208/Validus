@@ -58,5 +58,11 @@ export interface BountyReceipt {
 // Aggregated stats the dashboard renders at the top
 export interface ReceiptsResponse {
   receipts: BountyReceipt[];
-  source: "filesystem" | "mock";
+  // Where the receipts came from. The dashboard uses this to show a small
+  // indicator: only "mock" ever shows the "mock data" badge.
+  //   remote        — fetched from the VPS plugin server (production)
+  //   remote-empty  — VPS reachable but the receipts directory is empty
+  //   filesystem    — read from local ~/.blockrun/validus/receipts/ (dev)
+  //   mock          — fallback sample data (only when VALIDUS_USE_MOCKS=1)
+  source: "remote" | "remote-empty" | "filesystem" | "mock";
 }

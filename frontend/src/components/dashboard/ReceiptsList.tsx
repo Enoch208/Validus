@@ -92,7 +92,11 @@ export function ReceiptsList() {
               isFetching ? "bg-indigo-400" : "bg-emerald-400"
             }`}
           />
-          {data?.source === "mock" ? "Showing mock data" : "Live"}
+          {data?.source === "mock"
+            ? "Showing mock data"
+            : data?.source === "filesystem"
+              ? "Local filesystem"
+              : "Live"}
           <RefreshIcon
             size={12}
             strokeWidth={1.5}
