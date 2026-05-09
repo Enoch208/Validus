@@ -55,7 +55,7 @@ export function FeatureCard({
     <div
       className={cn(
         // Base surface — flex column lets inner content fill stretched grid height
-        "group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-zinc-950/60 backdrop-blur-xl",
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-zinc-950/60 backdrop-blur-xl",
         // Layered drop shadow (sits + lifts off the page)
         "shadow-[0_2px_6px_rgba(0,0,0,0.4),0_16px_40px_rgba(0,0,0,0.45)]",
         "transition-colors duration-300 hover:border-white/[0.10]",
