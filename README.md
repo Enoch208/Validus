@@ -16,7 +16,7 @@ Reviewed a $5 bounty for **$0.019**. Settled on Base in **~2 seconds**. **82–9
 [![Tests](https://img.shields.io/badge/tests-30%20passing-10b981.svg?style=flat-square)](plugin/test/run-workflow.test.mjs)
 [![Hackathon](https://img.shields.io/badge/BlockRunAI-Hackathon%20May%202026-f59e0b.svg?style=flat-square)](https://franklin.run)
 
-[Live demo](#) · [90-second video](#) · [Plugin docs](plugin/README.md) · [Deployment guide](DEPLOYMENT.md) · [Architecture spec](GOAL.md)
+[Live demo](#) · [90-second video](#) · [Plugin docs](plugin/README.md) · [Deployment guide](DEPLOYMENT.md)
 
 </div>
 
@@ -172,7 +172,7 @@ flowchart LR
 | **Styling** | [Tailwind CSS v4](https://tailwindcss.com) (config-less) | Latest version, no `tailwind.config.js`, just CSS |
 | **Type system** | TypeScript 5 strict | Zero `any`, full coverage for receipt schema |
 | **UI primitives** | [HeroUI](https://heroui.com) (formerly NextUI) | Accessible base, themed dark-mode-only |
-| **Animation** | [Framer Motion](https://motion.dev) | Custom motion design system in [FRONTEND_ARCHITECTURE.md §6](FRONTEND_ARCHITECTURE.md#6-micro-animation-standards) — 5 duration tokens, transform/opacity only, `prefers-reduced-motion` honored |
+| **Animation** | [Framer Motion](https://motion.dev) | Custom motion design system — 5 duration tokens, transform/opacity only, `prefers-reduced-motion` honored |
 | **Icons** | [hugeicons-react](https://hugeicons.com) `strokeWidth=1.5` | Thin technical feel, single weight |
 | **Wallet connect** | [Reown AppKit](https://reown.com) + wagmi + viem | Project ID auth, Base + Base Sepolia, SSR cookie hydration (no flash of disconnected UI) |
 | **Server state** | TanStack Query | Polling, optimistic invalidation when a new review lands |
@@ -282,10 +282,7 @@ Validus/
 │   └── test/run-workflow.test.mjs 30-assertion test harness
 │
 ├── examples/demo-bounty-template/ Drop-in template for bounty repos
-├── DEPLOYMENT.md                  VPS + Vercel walkthrough
-├── GOAL.md                        Hackathon spec, 7-day plan, demo script
-├── FRONTEND_ARCHITECTURE.md       Design system, motion rules, component patterns
-└── CLAUDE.md                      Repo context for AI agents
+└── DEPLOYMENT.md                  VPS + Vercel walkthrough
 ```
 
 ---
@@ -313,7 +310,7 @@ Plus pre-flight: bad URL / private repo / missing PR fails in <1s, before any LL
 | **Usability** | One-command install (`npm i -g @blockrun/franklin`). Plain `bounties.json` config. Public dashboard with wallet-gated review form. Friendly error messages for every failure mode (private repo, missing PR, GitHub auth) |
 | **Smart-routing efficiency** | All 4 routing tiers exercised in one workflow. Per-stage cost, total spent, and savings vs always-Opus printed in every receipt. `freeOnly` mode lets users validate the pipeline at zero spend before funding x402 |
 | **Production readiness** | systemd unit (hardened), Caddy + Let's Encrypt config, Bearer-token auth on the VPS endpoint, concurrency serialization, pre-flight GitHub validation, receipt schema documented & versioned |
-| **Frontend craft** | Custom design system in [FRONTEND_ARCHITECTURE.md](FRONTEND_ARCHITECTURE.md) — 5 duration tokens, transform-only animations, asymmetric 60/40 grid, layered indigo glow on cards, real photoreal 3D illustrations (alpha-trimmed + pngquant'd, 433 KB total) |
+| **Frontend craft** | Custom design system — 5 duration tokens, transform-only animations, asymmetric 60/40 grid, layered indigo glow on cards, real photoreal 3D illustrations (alpha-trimmed + pngquant'd, 433 KB total) |
 
 ---
 

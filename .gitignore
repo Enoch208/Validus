@@ -10,3 +10,18 @@ yarn-error.log*
 
 # misc
 .DS_Store
+
+# Internal docs — AI agent context, hackathon planning, internal design notes.
+# Public docs (README.md, DEPLOYMENT.md, plugin/README.md, etc.) stay tracked.
+CLAUDE.md
+**/CLAUDE.md
+AGENTS.md
+**/AGENTS.md
+GOAL.md
+FRONTEND_ARCHITECTURE.md
+
+# Local env (sometimes tracked accidentally)
+.env
+.env.local
+.env.*.local
+!.env.example
