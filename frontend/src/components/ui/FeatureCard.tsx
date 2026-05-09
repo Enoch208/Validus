@@ -54,8 +54,8 @@ export function FeatureCard({
   return (
     <div
       className={cn(
-        // Base surface
-        "group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-zinc-950/60 backdrop-blur-xl",
+        // Base surface — flex column lets inner content fill stretched grid height
+        "group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.06] bg-zinc-950/60 backdrop-blur-xl",
         // Layered drop shadow (sits + lifts off the page)
         "shadow-[0_2px_6px_rgba(0,0,0,0.4),0_16px_40px_rgba(0,0,0,0.45)]",
         "transition-colors duration-300 hover:border-white/[0.10]",
@@ -84,20 +84,26 @@ export function FeatureCard({
         className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-black/40 to-transparent"
       />
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex h-full flex-col">
         {layout === "text-top" && (
           <>
             {Title}
             {Description}
-            {visual && <div className="mt-8">{visual}</div>}
+            {/* mt-auto pushes the illustration to the bottom edge so it aligns
+                across rows when grid stretches paired cards to equal heights */}
+            {visual && <div className="mt-auto pt-8">{visual}</div>}
           </>
         )}
 
         {layout === "image-top" && (
           <>
-            {visual && <div className="mb-8">{visual}</div>}
-            {Title}
-            {Description}
+            {visual && <div>{visual}</div>}
+            {/* mt-auto pushes title+description to the bottom edge for the same
+                reason — symmetrical content placement across the grid row */}
+            <div className="mt-auto pt-8">
+              {Title}
+              {Description}
+            </div>
           </>
         )}
       </div>
