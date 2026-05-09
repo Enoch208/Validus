@@ -150,7 +150,7 @@ export function ReviewForm() {
           </div>
 
           <p className="mt-2 text-[11px] leading-relaxed text-zinc-500">
-            Free-tier dry-run. Public repos only. Takes ~20 seconds.
+            Live testnet payout on Base Sepolia. Public repos only. Takes ~20 seconds.
           </p>
         </div>
 

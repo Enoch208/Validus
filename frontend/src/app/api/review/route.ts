@@ -49,14 +49,19 @@ export async function POST(req: Request) {
     );
   }
 
-  // Force dry-run + freeOnly from the dashboard for safety. Real payouts go via
-  // direct CLI invocation on the VPS, not from this user-facing endpoint.
-  // Loosen this once we have proper auth + rate limiting.
+  // Forward the request to the VPS. We default to mode=testnet so the
+  // dashboard demo signs real Sepolia payouts (with real txHashes for the
+  // video). Mainnet is still gated — accepted only if the request explicitly
+  // asks for it AND the VPS will enforce its $5 hard cap regardless.
+  //
+  // For production: re-add stricter coercion (e.g. force testnet) once the
+  // dashboard is gated by wallet auth or rate-limiting middleware. Right now
+  // the form is open to anyone with the URL.
   const safeBody: ReviewRequest = {
     prUrl: body.prUrl,
-    mode: "dry-run",
-    freeOnly: true,
-    perPayoutCapUsd: 5,
+    mode: body.mode ?? "testnet",
+    freeOnly: body.freeOnly ?? false,
+    perPayoutCapUsd: body.perPayoutCapUsd ?? 5,
   };
 
   try {
