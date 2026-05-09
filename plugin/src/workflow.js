@@ -318,23 +318,43 @@ export function createReviewPRWorkflow() {
           const { pr } = ctx.config;
           ctx.log("Escalating to premium tier");
 
-          const out = await ctx.callModel(
-            pickTier(ctx, "premium"),
-            [
-              `A previous reviewer flagged this PR as ambiguous. Make a final call:`,
-              `  APPROVE — bounty payout safe to sign`,
-              `  NEEDS-HUMAN — escalate to maintainer`,
-              `Follow with one sentence reason. For low-risk diffs (docs, config, trivial CI),`,
-              `default to APPROVE unless something concrete looks off.`,
-              ``,
-              `Title: ${pr.title}`,
-              `Diff summary: ${pr.diffStats?.summary ?? "(unknown)"}`,
-              `Linked issue: ${pr.issue ?? "(none)"}`,
-              ``,
-              `Diff:`,
-              pr.diffContent ?? "(diff unavailable)",
-            ].join("\n")
-          );
+          // Wrap the premium call so x402 / network errors don't kill the
+          // workflow — fall back to needs-human with a clear reason and a
+          // receipt so the maintainer knows what happened.
+          let out;
+          try {
+            out = await ctx.callModel(
+              pickTier(ctx, "premium"),
+              [
+                `A previous reviewer flagged this PR as ambiguous. Make a final call:`,
+                `  APPROVE — bounty payout safe to sign`,
+                `  NEEDS-HUMAN — escalate to maintainer`,
+                `Follow with one sentence reason. For low-risk diffs (docs, config, trivial CI),`,
+                `default to APPROVE unless something concrete looks off.`,
+                ``,
+                `Title: ${pr.title}`,
+                `Diff summary: ${pr.diffStats?.summary ?? "(unknown)"}`,
+                `Linked issue: ${pr.issue ?? "(none)"}`,
+                ``,
+                `Diff:`,
+                pr.diffContent ?? "(diff unavailable)",
+              ].join("\n")
+            );
+          } catch (err) {
+            ctx.data.stages.push({
+              tier: "premium",
+              label: "Escalation review",
+              cost: 0,
+              durationMs: 0,
+              output: `error: ${err.message?.slice(0, 200)}`,
+            });
+            ctx.data.verdict = VERDICT_NEEDS_HUMAN;
+            ctx.data.reasoning =
+              `Premium tier call failed (${err.message?.slice(0, 80)}). ` +
+              `Maintainer review required.`;
+            await emitReceipt(ctx, undefined);
+            return { abort: true, summary: "Premium tier errored", cost: 0 };
+          }
           const verdict = extractKeyword(out, ["approve", "needs-human"]);
 
           ctx.data.stages.push({
